@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0" />
+		<title>Results</title>
+		<link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
+		<script src="static/js/jquery-3.2.1.min.js"></script>
+		<script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+		
+	</head>
+	<script>
+		var map;
+
+		function initMap() {
+			var ny = {lat: 40.7128, lng: -74.0060};
+			map = new google.maps.Map(document.getElementById('map'), {
+			zoom: 7,
+			center: ny
+			});
+	  	}
+
+		function plotMap(restaurants, latitude, longitude, address, contact) {
+			var count = 0;
+			console.log("In plotmap");
+			
+			marker_color = '#2962FF';
+			console.log(latitude.length);
+			for(i=0; i<latitude.length; i++){
+
+				var dot_symbol = {
+					path: 'M 2,2 2,2 2,2 2,2 z',
+					strokeColor: marker_color,
+					fillColor: marker_color,
+					fillOpacity: 1,
+					scale: 7
+				};
+
+				var content = '<style>'
+								+'.widget' 
+								+'{'
+								+	'max-width:300px;'
+								+	'margin:auto;'
+								+'}'
+								+'.profile_pic{'
+								+	'float:left;'
+								+	'width:40px;'
+								+	'height:40px;'
+								+	'border-radius:50%;'
+								+'}'
+								+'</style>'+'<div class="widget">'
+								+'<div>'
+								+'<h4 style="color: #00aced; overflow:hidden;">'+restaurants[i]+'</h4>'
+								+'</div>'
+								+'<h5 style="overflow:hidden;">'+address[i]+'</h5>'
+								+'</div>';
+
+				
+				var marker = new google.maps.Marker({
+					position: {lat: parseFloat(latitude[i]), lng: parseFloat(longitude[i])},
+					map: map,
+					title: restaurants[i],
+					icon: dot_symbol
+				});
+
+				var infowindow = new google.maps.InfoWindow();
+				bindInfoWindow(marker, map, infowindow, content);
+
+			}
+
+		}
+
+		var current = false;
+		
+		function bindInfoWindow(marker, map, infowindow, html) {
+			marker.addListener('click', function() {
+				if(current){
+					current.close();
+				}
+				current = infowindow;
+				infowindow.setContent(html);
+				infowindow.open(map, this);
+			});
+		}
+
+		setTimeout(function getRestaurants() {
+			console.log("Inside Ajax function");
+			food_item = localStorage.getItem("food");
+			food_item = food_item.replace(/\s+/g,' ').trim();
+			document.getElementById("insert").innerHTML = food_item;
+			$.ajax({
+				url : "",
+				type : "GET",
+				contentType : "application/json",
+				success : function(data) {
+					console.log("Success function");
+					
+					try {
+						data = JSON.parse(data);
+					}
+					catch (e) {
+						data = data;
+					}
+
+					var restaurants = [];
+					var latitude = [];
+					var longitude = [];
+					var address = [];
+					var contact = [];
+
+					for (i=0; i<data.results.restaurant.length; i++) {
+						restaurants.push(data.results.restaurant[i].toString());
+						latitude.push(data.results.lat[i]);
+						longitude.push(data.results.lon[i]);
+						address.push(data.results.address[i].toString());
+						contact.push(data.results.contact[i].toString());
+					}
+					
+					for(i=0; i<restaurants.length; i++){
+						var card = "<hr>"
+							  +"<br>"
+							  +"<li>"
+									+"<div class='card'>"
+									+"<a href='https://www.google.com/maps/dir/"+latitude[i]+","+ longitude[i]+"/'>"
+										+"<div class='card-block'>"
+											+"<h4 class='card-title'>"+restaurants[i]+"</h4></a>"
+											+"<h5 class='card-subtitle'>"+address[i]+"</h5>"
+											+"<h5 class='card-text' style='font-weight: bold;'>"+contact[i]+"</h5>"
+										+"</div>"
+									+"</div>"
+								+"</li>"
+						$('ul').append(card);
+					}
+					plotMap(restaurants, latitude, longitude, address, contact);
+				},
+
+				error : function(request, error) {
+					console.log("Error function 2" + JSON.stringify(request));
+					console.log("Error function 2" + JSON.stringify(error));
+				}
+			});
+		}, 5000);
+
+	</script>
+	<style>
+		.r_list{
+			width: 40%;
+			height: 100%;
+			position: absolute;
+			left: 0;
+			top: 5%;
+			border-right: 0.5px solid;
+			padding: 1%
+		}
+		ul{
+			list-style-type: none;
+			-webkit-overflow-scrolling: touch;
+            width: auto;
+            height: 900px;
+            overflow-y: auto;
+		}
+		#map {
+			height: 150%;
+			width: 60%;
+			position: absolute;
+			right: 0
+		}
+
+		.title-box{
+			background: #0275d8;
+			padding: 10px;
+			padding-top: 12px;
+			padding-bottom: 12px;
+			color: white;
+			text-align: center;
+			border-radius: 4px;
+			margin-bottom: 5px;
+			font-size: 20px;
+		}
+		
+	</style>
+	<body>
+		<div class="r_list" style="margin-top: 0; padding-top: 0;">
+			<div class="title-box">
+				<h3 style="margin: 0; padding: 0;">Results for '<span id="insert"></span>':</h3>
+				</h3>
+			</div>
+			<ul>
+			</ul>
+		</div>
+
+		<script async defer
+		src="https://maps.googleapis.com/maps/api/js?key=MAPS_API_KEY&callback=initMap">
+		</script>
+		<div id="map"></div>
+	</body>		
+</html>

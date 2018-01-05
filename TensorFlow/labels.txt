@@ -1,0 +1,11 @@
+burger
+chole
+dosa
+idli
+medu vada
+pav bhaji
+pizza
+rice
+roti
+samosa
+waffle

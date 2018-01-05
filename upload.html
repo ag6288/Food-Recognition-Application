@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="shortcut icon" type="image/png" href="static/favicon.png"/>
+	<link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700,900">
+	<script src="static/js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+	<script src="https://sdk.amazonaws.com/js/aws-sdk-2.19.0.min.js"></script>	
+	<title>Food Image Recognition System</title>
+	<meta name="viewport" content="initial-scale=1.0">
+	<meta charset="utf-8">
+	<style>
+	html, body {
+		height: 100%;
+		width: 100%;
+		margin: 0;
+		padding: 0;
+	}
+	.bckgrnd{
+		width: 100%;
+		height: 100%;
+		background-size:100% auto;
+		background-image: url('static/food.jpg');
+		opacity: 0.5;
+	}
+	.main{
+		width: 100%;
+		height: 100%;
+		opacity: 1;
+		position: absolute;
+		top: 0;
+	}
+	</style>
+</head>
+<body style="font-family: 'Roboto', sans-serif;">
+	<div class="bckgrnd">
+	</div>
+	<div class="main">
+		<div class="container" style="color: #212121">
+			
+			<div class="row" style="margin-top: 3%">
+		        <div class="col-sm-8 col-sm-offset-3 text">
+		            <h1 style="font-size: 42px; font-weight: 900;"><strong>Food Image Recognition System</strong></h1>
+		            <div class="description">
+		            	<h4 style="font-size: 20px; font-weight: 500;">
+		            		Find restaurants near you that offer the food item you are craving for!
+		            	</h4>
+		            </div>
+		        </div>
+		    </div>
+		    
+		    <br>
+		    <br>
+		    
+		    <div class="row">
+		        <div class="col-sm-offset-4 col-sm-6">
+		            <h3>Select food item image:</h3>
+		        </div>
+		    </div>
+
+		    <div class="col-sm-offset-4 col-sm-2">
+		        <input type="file" name="file" id="file-chooser" style="font-size: 18px; font-weight: 500;"><br>
+		        <button class="btn btn-primary btn-lg" id="upload-button">Upload</button>
+		    </div>
+
+		    <div class="row">
+		    	<div id="results" class="col-sm-offset-5 col-sm-3" style="color: #212121; font-size: 20px; font-weight: 500;"></div>
+		    </div>
+
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		var fileChooser = document.getElementById('file-chooser');
+		var button = document.getElementById('upload-button');
+		var results = document.getElementById('results');
+
+		button.addEventListener('click', function () {
+			var file = fileChooser.files[0];
+			if (file) {			
+				AWS.config.update({
+					"accessKeyId": "",
+					"secretAccessKey": "",
+					"region": ""
+				});
+
+				var s3 = new AWS.S3();
+				var params = {
+					Bucket: '',
+					Key: file.name,
+					ContentType: file.type,
+					Body: file,
+					ACL: 'public-read'
+				};		
+				localStorage.setItem("image_name", file.name);
+				s3.putObject(params, function (err, res) {
+
+					if (err) {
+						results.innerHTML = ("Error uploading data: ", err);
+					} else {
+						img_name = localStorage.getItem("image_name").toString();
+						$.ajax({
+							url : "",
+							type : "GET",
+							success : function(data) {
+								food_item = JSON.stringify(data);
+								result = JSON.parse(food_item)['result']
+								console.log("Success parsing image"+ JSON.stringify(data));
+								results.innerHTML = ("The food item is "+ result);
+								localStorage.setItem("food", result);
+								window.location.replace("LINK TO REDIRECT TO")
+							},
+							error : function(request, error) {
+								console.log("Error: " + error);
+							}
+						});
+						
+						
+					}
+				});
+			} else {
+				results.innerHTML = 'Nothing to upload.';
+			}
+		}, false);
+	</script>
+</body>
+</html>

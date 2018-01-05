@@ -1,0 +1,17 @@
+OpenMenu
+Locu
+SinglePlatform - X
+Yelp
+Zomato
+AllMenus
+MenuPages
+MenuPlatform
+Urbanspoon
+GrubHub
+EatStreet
+
+https://www.vision.ee.ethz.ch/datasets_extra/food-101/
+http://visiir.lip6.fr/
+http://pfid.rit.albany.edu/
+https://www.kaggle.com/kmader/food41/data
+http://foodcam.mobi/dataset.html
