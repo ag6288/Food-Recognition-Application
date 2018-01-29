@@ -15,4 +15,4 @@
 - Tensor flow model is deployed on an EC2 instance and Lambda function is used to communicate with the model and recognise the image.
 - Using the result of the model, restaurant details are fetched by searching for the menu item in RDS.
 
-
+# YouTube URL : https://www.youtube.com/watch?v=9J2HhIsXBNs
